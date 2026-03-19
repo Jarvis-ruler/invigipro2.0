@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>InvigilateIQ — Exam Duty Scheduler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon">IQ</div>
+      <div>
+        <div class="brand-name">InvigilateIQ</div>
+        <div class="brand-sub">Smart Exam Duty Scheduler</div>
+      </div>
+    </div>
+    <div class="header-steps">
+      <div class="step active" id="step-1"><span class="step-num">1</span> Upload Data</div>
+      <div class="step-arrow">→</div>
+      <div class="step" id="step-2"><span class="step-num">2</span> Configure</div>
+      <div class="step-arrow">→</div>
+      <div class="step" id="step-3"><span class="step-num">3</span> Schedule</div>
+      <div class="step-arrow">→</div>
+      <div class="step" id="step-4"><span class="step-num">4</span> Export</div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- ═══ STEP 1: UPLOAD ═══ -->
+  <div class="page active" id="page-1">
+    <div class="page-title">Upload your data files</div>
+    <div class="page-sub">Upload the teacher list and room details as Excel or CSV files. Download the templates below to see the required format.</div>
+
+    <div class="upload-grid">
+
+      <!-- Teacher Upload -->
+      <div class="upload-card" id="teacher-upload-card">
+        <div class="upload-card-header">
+          <div class="upload-card-icon">👩‍🏫</div>
+          <div>
+            <div class="upload-card-title">Teacher Data</div>
+            <div class="upload-card-sub">Name, Age, Designation, Department</div>
+          </div>
+          <button class="template-btn" onclick="downloadTemplate('teacher')">⬇ Template</button>
+        </div>
+        <div class="dropzone" id="teacher-dz" onclick="document.getElementById('teacher-file').click()" ondragover="dz_over(event,'teacher-dz')" ondragleave="dz_leave('teacher-dz')" ondrop="dz_drop(event,'teacher')">
+          <div class="dz-icon">📂</div>
+          <div class="dz-text">Click or drag & drop</div>
+          <div class="dz-sub">.xlsx, .xls, .csv supported</div>
+        </div>
+        <input type="file" id="teacher-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadFile(event,'teacher')">
+        <div id="teacher-status" class="upload-status"></div>
+        <div id="teacher-preview" class="data-preview"></div>
+      </div>
+
+      <!-- Room Upload -->
+      <div class="upload-card" id="room-upload-card">
+        <div class="upload-card-header">
+          <div class="upload-card-icon">🏫</div>
+          <div>
+            <div class="upload-card-title">Room Data</div>
+            <div class="upload-card-sub">Room Name, Floor, Student Strength</div>
+          </div>
+          <button class="template-btn" onclick="downloadTemplate('room')">⬇ Template</button>
+        </div>
+        <div class="dropzone" id="room-dz" onclick="document.getElementById('room-file').click()" ondragover="dz_over(event,'room-dz')" ondragleave="dz_leave('room-dz')" ondrop="dz_drop(event,'room')">
+          <div class="dz-icon">📂</div>
+          <div class="dz-text">Click or drag & drop</div>
+          <div class="dz-sub">.xlsx, .xls, .csv supported</div>
+        </div>
+        <input type="file" id="room-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadFile(event,'room')">
+        <div id="room-status" class="upload-status"></div>
+        <div id="room-preview" class="data-preview"></div>
+      </div>
+
+    </div>
+
+    <!-- Manual add fallback -->
+    <div class="manual-section">
+      <div class="manual-toggle" onclick="toggleManual()">
+        <span id="manual-toggle-icon">▶</span> Or add entries manually
+      </div>
+      <div id="manual-panel" style="display:none">
+        <div class="manual-grid">
+          <div class="manual-block">
+            <div class="manual-label">Add Teacher</div>
+            <div class="mini-form">
+              <input id="m-tname" type="text" placeholder="Full name">
+              <input id="m-tage" type="number" placeholder="Age" min="21" max="75">
+              <select id="m-tdesg">
+                <option value="">Designation</option>
+                <option>Professor</option>
+                <option>Associate Professor</option>
+                <option>Assistant Professor</option>
+              </select>
+              <input id="m-tdept" type="text" placeholder="Department">
+              <button class="btn-small primary" onclick="manualAddTeacher()">Add</button>
+            </div>
+          </div>
+          <div class="manual-block">
+            <div class="manual-label">Add Room</div>
+            <div class="mini-form">
+              <input id="m-rname" type="text" placeholder="Room name / number">
+              <input id="m-rfloor" type="number" placeholder="Floor" min="0" max="30">
+              <input id="m-rstrength" type="number" placeholder="Student strength" min="1">
+              <button class="btn-small primary" onclick="manualAddRoom()">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-actions">
+      <div class="data-summary" id="data-summary" style="display:none">
+        <span class="ds-item">👩‍🏫 <strong id="ds-teachers">0</strong> teachers</span>
+        <span class="ds-sep">·</span>
+        <span class="ds-item">🏫 <strong id="ds-rooms">0</strong> rooms</span>
+      </div>
+      <button class="btn primary" onclick="goStep(2)" id="btn-step2" disabled>Continue to Configure →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: CONFIGURE ═══ -->
+  <div class="page" id="page-2">
+    <div class="page-title">Configure exam schedule</div>
+    <div class="page-sub">Add exam dates with morning and evening shifts. Each slot will be distributed across rooms.</div>
+
+    <div class="config-grid">
+
+      <!-- Exam Dates -->
+      <div class="config-card">
+        <div class="config-card-title">📅 Exam Dates & Shifts</div>
+        <div class="exam-add-form">
+          <div class="fg"><label>Exam / Subject Name</label><input id="ex-name" type="text" placeholder="e.g. Mathematics – Sem 4"></div>
+          <div class="form-row-3">
+            <div class="fg"><label>Date</label><input id="ex-date" type="date"></div>
+            <div class="fg"><label>Morning shift</label><input id="ex-morning" type="time" value="09:00"></div>
+            <div class="fg"><label>Evening shift</label><input id="ex-evening" type="time" value="14:00"></div>
+          </div>
+          <div class="checkbox-row">
+            <label class="chk-label"><input type="checkbox" id="ex-has-morning" checked> Morning shift</label>
+            <label class="chk-label"><input type="checkbox" id="ex-has-evening" checked> Evening shift</label>
+          </div>
+          <button class="btn primary" onclick="addExam()">+ Add Exam</button>
+        </div>
+
+        <div id="exam-list" class="exam-list">
+          <div class="empty-note">No exams added yet</div>
+        </div>
+      </div>
+
+      <!-- Assignment Rules -->
+      <div class="config-card">
+        <div class="config-card-title">⚙️ Assignment Rules</div>
+
+        <div class="rule-section">
+          <div class="rule-title">Room capacity rule</div>
+          <div class="rule-desc">Maximum students one teacher can handle alone</div>
+          <div class="slider-row">
+            <input type="range" id="threshold" min="20" max="80" value="40" oninput="document.getElementById('threshold-val').textContent=this.value">
+            <span class="slider-val" id="threshold-val">40</span>
+          </div>
+          <div class="rule-hint">Rooms with more than <strong id="th-display">40</strong> students → 2 invigilators</div>
+        </div>
+
+        <div class="rule-section">
+          <div class="rule-title">Floor assignment logic</div>
+          <div class="rule-pills">
+            <div class="rule-pill teal">Older age → Lower floor</div>
+            <div class="rule-pill blue">Professor → Preferred for large rooms</div>
+            <div class="rule-pill amber">Equal duty distribution enforced</div>
+          </div>
+        </div>
+
+        <div class="rule-section">
+          <div class="rule-title">Institution details (for PDF)</div>
+          <div class="fg" style="margin-bottom:10px"><label>Institution name</label><input id="inst-name" type="text" placeholder="ABC University, Kolkata"></div>
+          <div class="fg"><label>Examination controller / superintendent</label><input id="inst-ctrl" type="text" placeholder="Prof. XYZ"></div>
+        </div>
+
+        <div class="duty-preview" id="duty-preview" style="display:none">
+          <div class="duty-preview-title">Projected duty count per teacher</div>
+          <div id="duty-preview-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-actions">
+      <button class="btn ghost" onclick="goStep(1)">← Back</button>
+      <button class="btn primary" onclick="goStep(3)" id="btn-step3" disabled>Generate Schedule →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: SCHEDULE ═══ -->
+  <div class="page" id="page-3">
+    <div class="page-title">Generated schedule</div>
+    <div class="page-sub">Review the complete duty roster below. Each teacher gets equal duties across all exam slots.</div>
+
+    <div class="sched-toolbar">
+      <div class="sched-stats" id="sched-stats"></div>
+      <div class="sched-filters">
+        <select id="filter-exam" onchange="filterSchedule()"><option value="">All exams</option></select>
+        <select id="filter-shift" onchange="filterSchedule()">
+          <option value="">Both shifts</option>
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
+        </select>
+        <input type="text" id="filter-teacher" placeholder="Search teacher…" oninput="filterSchedule()">
+      </div>
+    </div>
+
+    <!-- Teacher Duty Summary -->
+    <div class="duty-summary-section">
+      <div class="section-label">Teacher duty summary</div>
+      <div id="duty-summary-grid" class="duty-summary-grid"></div>
+    </div>
+
+    <!-- Schedule Table -->
+    <div class="schedule-wrap">
+      <div class="section-label" style="margin-bottom:12px">Room assignments</div>
+      <div id="schedule-output"></div>
+    </div>
+
+    <div class="page-actions">
+      <button class="btn ghost" onclick="goStep(2)">← Reconfigure</button>
+      <button class="btn primary" onclick="goStep(4)">Export PDF →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: EXPORT ═══ -->
+  <div class="page" id="page-4">
+    <div class="page-title">Export schedule</div>
+    <div class="page-sub">Download the complete invigilation schedule as a printable PDF.</div>
+
+    <div class="export-options">
+      <div class="export-card" onclick="exportFull()">
+        <div class="export-icon">📋</div>
+        <div class="export-title">Full Schedule</div>
+        <div class="export-desc">All exams, shifts, rooms and assigned teachers. Best for official records.</div>
+        <button class="btn primary">Download Full Schedule</button>
+      </div>
+      <div class="export-card" onclick="exportByTeacher()">
+        <div class="export-icon">👩‍🏫</div>
+        <div class="export-title">Teacher-wise Duty List</div>
+        <div class="export-desc">Each teacher's duty dates and rooms. Best for circulating to staff.</div>
+        <button class="btn primary">Download Teacher List</button>
+      </div>
+      <div class="export-card" onclick="exportByRoom()">
+        <div class="export-icon">🏫</div>
+        <div class="export-title">Room-wise Sheet</div>
+        <div class="export-desc">Each room's assigned invigilators per exam slot. Best for display boards.</div>
+        <button class="btn primary">Download Room Sheet</button>
+      </div>
+    </div>
+
+    <div id="export-status" style="margin-top:20px;"></div>
+
+    <div class="page-actions">
+      <button class="btn ghost" onclick="goStep(3)">← Back to Schedule</button>
+      <button class="btn primary" onclick="goStep(1)">Start Over</button>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast-container"></div>
+<script src="app (2).js"></script>
+</body>
+</html>

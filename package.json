@@ -1,0 +1,13 @@
+{
+  "name": "invigipro",
+  "version": "2.0.0",
+  "description": "InvigilateIQ - Smart Exam Duty Scheduler",
+  "main": "app.js",
+  "keywords": ["exam", "scheduler", "invigilator", "duty"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/invigipro2.0.git"
+  }
+}
