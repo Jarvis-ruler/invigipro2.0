@@ -1,4 +1,4 @@
-/* ═══════════════════════════════
+/** ═══════════════════════════════
    InvigilateIQ v2 — Styles (Fixed + Mobile)
 ═══════════════════════════════ */
 :root {
@@ -315,7 +315,7 @@ input::placeholder { color: var(--gray-4); }
 .rule-pill.blue  { background: var(--blue-lt);  color: var(--blue);  border: 1px solid var(--blue-mid); }
 .rule-pill.amber { background: var(--amber-lt); color: var(--amber); border: 1px solid var(--amber-mid); }
 
-.duty-preview {
+duty-preview {
   background: var(--gray-1); border: 1px solid var(--gray-2);
   border-radius: 8px; padding: 12px; margin-top: 14px;
 }
@@ -478,4 +478,63 @@ input::placeholder { color: var(--gray-4); }
 /* ── Badge ── */
 .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
 .badge.prof  { background: #dbeafe; color: #1e40af; }
-.badge.assoc { background: 
+.badge.assoc { background: #ede9fe; color: #5b21b6; }
+.badge.asst  { background: var(--teal-lt); color: var(--teal); }
+
+/* ═══════════════════════════════
+   RESPONSIVE BREAKPOINTS
+═══════════════════════════════ */
+
+/* ── Tablet (≤900px) ── */
+@media (max-width: 900px) {
+  .upload-grid  { grid-template-columns: 1fr; }
+  .config-grid  { grid-template-columns: 1fr; } /* FIX: was missing at 900px */
+  .manual-grid  { grid-template-columns: 1fr; } /* FIX: was missing at 900px */
+  .export-options { grid-template-columns: 1fr 1fr; }
+  .form-row-3   { grid-template-columns: 1fr 1fr; }
+  .header-steps { display: none; }
+  .sched-toolbar { flex-direction: column; }
+
+  /* Show mobile step indicator instead */
+  .header-inner { padding: 10px 14px; }
+}
+
+/* ── Mobile (≤600px) ── */
+@media (max-width: 600px) {
+  .main         { padding: 16px 12px 48px; }
+  .page-title   { font-size: 18px; }           /* FIX: smaller on phone */
+  .form-row-3   { grid-template-columns: 1fr; }
+  .rooms-grid   { grid-template-columns: 1fr; }
+  .export-options { grid-template-columns: 1fr; }
+  .duty-summary-grid { grid-template-columns: 1fr 1fr; } /* FIX: 2-col on phone */
+
+  .upload-card  { padding: 14px; }
+  .config-card  { padding: 14px; }
+  .manual-grid  { grid-template-columns: 1fr; padding: 0 14px 14px; }
+
+  .page-actions { flex-direction: column-reverse; align-items: stretch; }
+  .page-actions .btn { width: 100%; justify-content: center; }
+
+  .sched-filters select,
+  .sched-filters input { min-width: 100%; } /* FIX: full width filters on phone */
+
+  .exam-block-header { padding: 10px 12px; }
+  .rooms-grid { padding: 10px 10px; }
+  .shift-header { padding: 8px 12px; }
+
+  .stat-chip { padding: 8px 10px; }
+  .stat-chip .sv { font-size: 16px; }
+
+  #toast-container { bottom: 12px; right: 12px; left: 12px; }
+  .toast { max-width: 100%; }
+
+  .dropzone { padding: 20px 12px; }
+  .dz-icon  { font-size: 22px; }
+}
+
+/* ── Very small (≤380px) ── */
+@media (max-width: 380px) {
+  .duty-summary-grid { grid-template-columns: 1fr; }
+  .brand-sub { display: none; }
+  .page-title { font-size: 16px; }
+}
