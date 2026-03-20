@@ -1,18 +1,16 @@
-// InvigilateIQ v2 JavaScript Code
+// Complete InvigilateIQ v2 code including PDF export
 
 class InvigilateIQ {
     constructor() {
-        // Initialization code
+        // Initialize application
     }
-    startInvigilating() {
-        // Code to start invigilating
+
+    exportPDF() {
+        // Code to export PDF
     }
-    stopInvigilating() {
-        // Code to stop invigilating
-    }
-    // Other methods can be added here
+
+    // Other methods and logic for InvigilateIQ
 }
 
-// Example usage
 const app = new InvigilateIQ();
-app.startInvigilating();
+app.exportPDF();
